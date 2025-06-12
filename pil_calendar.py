@@ -51,6 +51,7 @@ class Render():
             print(week)
         self.title_font = ImageFont.truetype('times.ttf', 80)
         self.base_font = ImageFont.truetype('times.ttf', 50)
+        self.small_font = ImageFont.truetype('times.ttf', 30)
 
         self.box_width = 146
         self.box_height = 90
@@ -86,7 +87,21 @@ class Render():
         self.draw_lines()
         self.draw_month()
         self.draw_dates()
+        self.draw_days_of_week()
 
+    def draw_days_of_week(self):
+        """
+        Draw the days of the week near the top.
+        """
+        y_coord = 115
+        x_coord = 10
+        W, H = (self.box_width, 100)
+        for (_, dow_number) in self.month_cal[0]:
+            day_name = calendar.day_name[dow_number]
+            _, _, w, h = self.draw.textbbox((0, 0), day_name, font=self.small_font)
+            self.draw.text((x_coord + (W-w)/2, y_coord), day_name, font=self.small_font, fill='green')
+            x_coord += self.box_width
+            
 
     def draw_dates(self):
         """
