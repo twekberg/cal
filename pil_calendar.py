@@ -91,7 +91,7 @@ class Render():
 
     def draw_days_of_week(self):
         """
-        Draw the days of the week near the top.
+        Draw the days of the week column headers.
         """
         y_coord = 115
         x_coord = 10
@@ -127,13 +127,36 @@ class Render():
 
 
     def draw_lines(self):
+        """
+        Draw the vertical and horizontal lines.
+        """
+        def calc_y_bottom():
+            """
+            Months have 4, 5, or 6 weeks. This calculation is done to
+            have the bottom of the vertical lines line up properly.
+            2015/2 has 4 weeks, 2025/6 has 5 weeks, 2025/3 has 6 weeks.
+            """
+            if n_weeks == 4:
+                return (box_height + 12) * (n_weeks + 1) + 1            
+            if n_weeks == 5:
+                return (box_height + 10) * (n_weeks + 1) + 1
+            if n_weeks == 6:
+                return (box_height + 8) * (n_weeks + 1) + 5
+            raise Exception(f'Invalid n_weeks: {n_weeks}')
+
         n_weeks = len(self.month_cal)
         box_width = 146
         box_height = 90
 
         # Vertical lines
         y_top = 149
-        y_bottom = (box_height + 10) * (n_weeks + 1) + 1
+        # When n_weeks==4:
+        y_bottom = calc_y_bottom()
+        # When n_weeks==5:
+        #y_bottom = (box_height + 10) * (n_weeks + 1) + 1
+        # When n_weeks==6:
+        #y_bottom = (box_height + 8) * (n_weeks + 1) + 5
+
         for x in range(10, 1050, 145):
             self.draw.line((x, y_top, x, y_bottom), width=3, fill ="black")
 
