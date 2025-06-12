@@ -92,7 +92,7 @@ class Render():
         """
         Draw the numbered dates.
         """
-        y_coord = 120
+        y_coord = 170
         for week in self.month_cal:
             # Ignore DOW
             x_coord = 30
@@ -117,15 +117,15 @@ class Render():
         box_height = 90
 
         # Vertical lines
-        y_top = 100
-        y_bottom = (box_height + 1) * (n_weeks + 1) + 3 + 2
+        y_top = 149
+        y_bottom = (box_height + 10) * (n_weeks + 1) + 1
         for x in range(10, 1050, 145):
             self.draw.line((x, y_top, x, y_bottom), width=3, fill ="black")
 
         # Horizontal lines
         x_left = 10
         x_right = 1023
-        for y in range(100, 800, 90):
+        for y in range(150, 800, 90):
             self.draw.line((x_left, y, x_right, y), width=3, fill ="black")
             n_weeks -= 1
             if n_weeks < 0:
