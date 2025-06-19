@@ -9,9 +9,10 @@ import calendar
 from datetime import datetime
 import json
 from pathlib import Path
+
 import sys
 import tkinter as tk
-
+from PIL import Image
 from pil_calendar import main as pil_calendar_main
 
 
@@ -61,22 +62,39 @@ class Render_12():
         pil_calendar_main(args)
 
 
-    def render(self):
+    def resize(self, image_path):
+        image = Image.open(image_path)
+        scale = min(self.im.width / image.width, self.im.height / image.height)
+        resized = img.resize((round(scale * image.width),
+                              round(scale * image.height), Image.LANCZOS))
+        position = ((self.im.width - resized.width) / 2,
+                    (self.im.height - resized.height) / 2)
+        im.paste(position, resized)
         
+    def render(self):
+        """
+        Run 
+        """
         for month in range(1, 13):
             self.run_pil_calendar(month)
         # debug: make sure all of the image files are there.
-        # Remove when done
+        self.images = []
         for month in range(1, 13):
             month_name = calendar.month_name[month]
-            image_filename = Path(self.json['directory']) / self.json['images'][month]
-            print(image_filename.name, f'{image_filename.exists()}')
+            image_path = Path(self.json['directory']) / self.json['images'][month]
+            self.images.append(image_path)
+            print(image_path.name, f'{image_path.exists()}')
         # TODO
-        #scale the images to full screen. Use self.screen_width and self.screen_height.
+        scale the images to full screen. Use self.screen_width and self.screen_height.
         # collect the title.jpg file, mohth.jpg files and the
         # scaled image files and call
         #   magick names str(args.year).pdf
-
+        list(
+            list(
+	        itertools.chain.from_iterable(
+		    zip(['Title'] + [f'{month}.jpg'
+				     for month in calendar.month_name[1:]],
+		        self.images))))
 def main(args):
     """
     Starting point.
