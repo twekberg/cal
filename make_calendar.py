@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Complete program that makes a wall calendar with images.
+Makes a wall calendar with images.
 """
 
 
@@ -45,7 +45,7 @@ def build_parser():
                         'default: %(default)s')
     parser.add_argument('-q', '--quiet',
                         default=False, action='store_true',
-                        help="Don't show the images. Only create JPG files. "
+                        help="Don't display messages. "
                         'default: %(default)s')
     return parser
 
@@ -233,24 +233,33 @@ class MakeCalendar():
             image_path = Path(self.json['directory']) / self.json['images'][month]
             self.resize(image_path)
             self.images.append(image_path.name)
-            print(image_path.name, f'{Path(image_path.name).exists()}')
-        # TODO
-        # collect the title.jpg file, mohth.jpg files and the
+            if not self.args.quiet:
+                print(image_path.name, f'{Path(image_path.name).exists()}')
+        # Collect the title.jpg file, mohth.jpg files and the
         # scaled image files and call
-        #   magick names str(args.year).pdf
-        # Look at convert, mv, slide_show or video_clip in video_tools
+        # magick concatenating them together with output going to a PDF file.
         cmd = ['magick', 'title.jpg'] + \
               list(
                   list(
 	              itertools.chain.from_iterable(
-		          zip([str(image).replace('\\', '/') for image in self.images],
+		          zip([str(image) for image in self.images],
                               [f'{month}.jpg' for month in calendar.month_name[1:]])))) + \
               [f'{self.args.year}.pdf']
 
-        print(cmd)
+
+        self.jpg_files = [file for file in cmd if file.endswith('.jpg')]
+        if not self.args.quiet:
+            print(cmd)
         ret = subprocess.call(cmd)
         if ret != 0:
             raise RuntimeError(f'Got a subprocess.call error {ret}, command={" ".join(cmd)}')
+
+
+    def cleanup(self):
+        """
+        Remove the files that were created in this directory.
+        """
+        [Path(path).unlink() for path in self.jpg_files]
 
 
 def main(args):
@@ -259,6 +268,8 @@ def main(args):
     """
     make_calendar = MakeCalendar(args)
     make_calendar.render()
+    make_calendar.cleanup()
+
 
 if __name__ == '__main__':
     sys.exit(main(build_parser().parse_args()))
