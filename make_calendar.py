@@ -21,6 +21,7 @@ DATA = {"huge_font":  ImageFont.truetype('times.ttf', 300),
         "title_font": ImageFont.truetype('times.ttf', 80),
         "base_font":  ImageFont.truetype('times.ttf', 50),
         "small_font": ImageFont.truetype('times.ttf', 30),
+        "smaller_font": ImageFont.truetype('times.ttf', 15),
         "box_width": 146,
         "box_height": 90,
         "root_width": 1050,
@@ -36,7 +37,7 @@ def build_parser():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    parser.add_argument('-i', '--input_filename',
+    parser.add_argument('-i', '--images_filename',
                         default='rachel_welch.json',
                         help='JSON file with image data. '
                         ' Default: %(default)s.')
@@ -54,8 +55,9 @@ class RenderMonth():
     """
     Render an image for a specific month.
     """
-    def __init__(self, args, year, month):
+    def __init__(self, args, year, month, holidays):
         self.args = args
+        self.holidays = holidays
         self.im = Image.new('RGB', (DATA['root_width'], DATA['root_height']), (256, 256, 256))
         self.draw = ImageDraw.Draw(self.im)
         cal = calendar.Calendar(firstweekday=list(calendar.day_name).index('Sunday'))
@@ -86,10 +88,36 @@ class RenderMonth():
         """
         Draw the calendar
         """
+        self.normalize_holidays()
         self.draw_lines()
         self.draw_month()
         self.draw_dates()
         self.draw_days_of_week()
+
+
+    def normalize_holidays(self):
+        """
+        For the holidays that are relative, convert them to absolute days.
+        """
+        day_names = list(calendar.day_name)           # Monday is 1st day
+        day_names = [day_names[-1]] + day_names[0:-1] # Sunday is 1st day
+        # Reconstruct self.holidays to have absolute days.
+        # Make it a dict where the day# is the key, value is the holiday name.
+        holidays = {}
+        for (name, month, day) in self.holidays:
+            if isinstance(day, list):
+                # Relative days
+                (week, dow) = day
+                if week > 0:
+                    week -= 1   # Convert to 0 based index
+                # Need to count the number of valid Mondays.
+                if self.month_cal[0][day_names.index(dow)][0] == 0:
+                    # This DOW is not in the first week.
+                    if week >= 0:
+                        week += 1
+                day = self.month_cal[week][day_names.index(dow)][0]
+            holidays[day] = name
+        self.holidays = holidays
 
 
     def draw_days_of_week(self):
@@ -117,6 +145,9 @@ class RenderMonth():
             for (day, _) in week:
                 if day:
                     self.draw.text((x_coord, y_coord), f'{day}', font=DATA['base_font'], fill='red')
+                    if day in self.holidays:
+                        self.draw.text((x_coord - 18, y_coord + 50), self.holidays[day],
+                                       font=DATA['smaller_font'], fill='navy')                        
                 x_coord += DATA['box_width']
             y_coord += DATA['box_height']
 
@@ -187,6 +218,7 @@ class MakeCalendar():
     def __init__(self, args):
         self.args = args
         self.load_json()
+        self.load_holidays()
 
         root = tk.Tk()
         self.screen_width = root.winfo_screenwidth()
@@ -195,8 +227,12 @@ class MakeCalendar():
 
 
     def load_json(self):
-        with open(self.args.input_filename) as jin:
+        with open(self.args.images_filename) as jin:
             self.json = json.load(jin)
+
+    def load_holidays(self):
+        with open('holidays.json') as jin:
+            self.holidays = json.load(jin)
 
     def resize(self, image_path):
         """
@@ -219,10 +255,12 @@ class MakeCalendar():
         Run RenderMonth for each month and prepare the images.
         """
         for month in range(1, 13):
-            render = RenderMonth(self.args, self.args.year, month)
+            render = RenderMonth(self.args, self.args.year, month,
+                                 [holiday for holiday in self.holidays
+                                  if holiday[1] == month])
             render.draw_calendar()
             render.save()
-        render = RenderMonth(self.args, self.args.year, 1)
+        #### render = RenderMonth(self.args, self.args.year, 1)
         # draw_title_page also saves the JPG.
         render.draw_title_page(self.args.year, self.json['title_text'])
 
