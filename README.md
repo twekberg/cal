@@ -54,18 +54,18 @@ This is why the holiday events are specified in a JSON file.
 
 ## images_filename
 
-This file is used to specify images that are to be a part of the wall calendar.
-It is a dictionary with the following keys
+This JSON file is used to mostly specify images that are to be a part
+of the wall calendar.  It is a dictionary with the following keys
 
   - directory - fully specified directory containing the images.
   - title_text - text to show in the title page.
   - images - a list of image file names in the directory. There should be 12
-	images. Any extra are ignored.
+	images. Any extra images are ignored.
 
 I created rachel_welch.json to create a calendar with images of Rachel
-Welch. If you have images of bunnies or fall scenes you can create you
-own calendar by creating a JSON file for them and passing that name as
-the --images_filename parameter.
+Welch. If you have images of bunnies or fall scenes you can create your
+own wall calendar by creating a JSON file for them and passing that
+name as the --images_filename parameter.
 
 # Create A Virtualenv And Install Dependencies
 
@@ -86,12 +86,12 @@ to activate the venv.
     dos2unix cal-env/Scripts/activate
     source cal-env/Scripts/activate
 
+# Usage
+
 The final step combines 25 JPG files to generate a PDF file. This uses
 the ImsgeMagick program. Use the download link on the home page:
 https://imagemagick.org/. It is free. There are instruction to install
 on Linux, Apple Mac and Windows.
-
-# Usage
 
     $ ./make_calendar.py -h
     usage: make_calendar.py [-h] [-i IMAGES_FILENAME] [-y YEAR] [-q]
@@ -102,12 +102,12 @@ on Linux, Apple Mac and Windows.
       -h, --help            show this help message and exit
       -i IMAGES_FILENAME, --images_filename IMAGES_FILENAME
                             JSON file with image data. Default: rachel_welch.json.
-      -y YEAR, --year YEAR  The year to draw. default: 2025
+      -y YEAR, --year YEAR  The year to draw. default: 2026
       -q, --quiet           Don't display messages. default: False
 
 # Constructing Calendar
 
-The primary output for the make_calendar.py is year.pdf, whatever year is
+The primary output for make_calendar.py is year.pdf, whatever year is
 specified. Use Adobe Acrobat to display and print the wall
 calendar. Be sure to print it double-sided.
 
@@ -122,26 +122,3 @@ To make the wall calendar, stack the pages so that the title page is
 Use 5 of them to join the pages together. Use the single hole to hang
 it from a wall. When showing a month, an image will appear at the top
 and the calendar for a month at the bottom.
-
-# shows_seen.py
-
-This program nas nothing to do with a wall calendar. It displays a
-list of the shows I watch on Paramount+ followed by a numbered grid of 23 boxes
-with a slash. When I watch a new show, I mark the air date month/day
-in the box for that episode.
-
-## Usage
-
-There is nothing to install. It uses graphics.py to aid with the
-graphics. I may consider using PIL instead of graphics.py.
-
-To run the program, enter:
-
-    ./shows_seen.py
-	
-It display a new window with the shows and boxes. Click the mouse in
-the window to make it go away.
-
-To change to another season for the shows, edit the shows list appropriately.
-Then run this program and use the Snipping Tool to capture the image and paste
-it into Gimp. Finally print. There is more detail in the code.

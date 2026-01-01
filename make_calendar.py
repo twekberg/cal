@@ -111,13 +111,16 @@ class RenderMonth():
                 if week > 0:
                     week -= 1   # Convert to 0 based index
                 # Need to count the number of valid Mondays.
-                if self.month_cal[0][day_names.index(dow)][0] == 0:
+                if self.month_cal[week][day_names.index(dow)][0] == 0:
                     # This DOW is not in the first week.
                     if week >= 0:
                         week += 1
+                    else:
+                        week -= 1
                 day = self.month_cal[week][day_names.index(dow)][0]
             holidays[day] = name
         self.holidays = holidays
+        print(f'{holidays=} -----------------')
 
 
     def draw_days_of_week(self):
@@ -201,6 +204,8 @@ class RenderMonth():
         """
         Draw the calendar title page showing the year.
         """
+        self.im = Image.new('RGB', (DATA['root_width'], DATA['root_height']), (256, 256, 256))
+        self.draw = ImageDraw.Draw(self.im)
         W, H = (self.im.width, self.im.height)
         _, _, w, h = self.draw.textbbox((0, 0), str(year), font=DATA["huge_font"])
         self.draw.text(((W-w)/2, (H-h)/3), str(year), font=DATA['huge_font'], fill='blue')
